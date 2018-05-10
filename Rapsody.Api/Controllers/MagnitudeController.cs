@@ -55,7 +55,7 @@ namespace Rapsody.Api.Controllers
                 return BadRequest();
 
             await _repository.SaveAsync(magnitude);
-            return Ok();
+            return StatusCode(StatusCodes.Status201Created);
         }
 
         [HttpPost]

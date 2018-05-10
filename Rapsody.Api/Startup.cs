@@ -43,10 +43,15 @@ namespace Rapsody.Api
 
             var sqlConnectionString = Configuration.GetConnectionString("RapsodyConnectionString");
             services.AddEntityFrameworkNpgsql();
-            services.AddDbContext<RapsodyDbContext>(options => options.UseNpgsql(sqlConnectionString));
+            services.AddDbContext<RapsodyDbContext>(options =>
+            {
+                options.UseNpgsql(sqlConnectionString);
+                options.EnableSensitiveDataLogging();
+            });
 
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IMagnitudeRepository, MagnitudeRepository>();
+            services.AddScoped<ICampaignRepository, CampaignRepository>();
             services.AddScoped<ICsvService, CsvService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 

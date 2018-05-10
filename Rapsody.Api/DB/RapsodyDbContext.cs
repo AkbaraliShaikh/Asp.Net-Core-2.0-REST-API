@@ -1,9 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Rapsody.Api.Models;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Rapsody.Api.DB
 {
@@ -11,15 +8,21 @@ namespace Rapsody.Api.DB
     {
         public RapsodyDbContext(DbContextOptions<RapsodyDbContext> options) : base(options)
         {
-                Database.EnsureCreated();
+            Database.EnsureCreated();
+
+            if (Database.GetPendingMigrations().Any())
+                Database.Migrate();
+
         }
 
         public virtual DbSet<Magnitude> Magnitude { get; set; }
+        public virtual DbSet<Campaign> Campaign { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Magnitude>().HasKey(x => x.Id);
-
+            modelBuilder.Entity<Campaign>().HasKey(x => x.Id);
+            
             base.OnModelCreating(modelBuilder);
 
         }

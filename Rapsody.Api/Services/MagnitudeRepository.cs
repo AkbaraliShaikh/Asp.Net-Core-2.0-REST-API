@@ -16,7 +16,7 @@ namespace Rapsody.Api.Services
 
         public async Task<Magnitude> GetAsync(int id)
         {
-            return await _rapsodyDbContext.Magnitude.FirstOrDefaultAsync(x => x.Id == id);
+            return await _rapsodyDbContext.Magnitude.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         }
     }
 }
