@@ -18,5 +18,10 @@ namespace Rapsody.Api.Services
         {
             return await _rapsodyDbContext.Magnitude.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         }
+
+        public Task TruncateAsync(string tableName)
+        {
+            return _rapsodyDbContext.Database.ExecuteSqlCommandAsync(string.Format("TRUNCATE TABLE public.\"{0}\"", tableName));
+        }
     }
 }

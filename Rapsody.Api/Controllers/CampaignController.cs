@@ -43,7 +43,7 @@ namespace Rapsody.Api.Controllers
             if (campaign == null)
                 return BadRequest();
 
-            campaign.LasModifiedDate = DateTime.Now;
+            campaign.LastModifiedDate = DateTime.Now;
             await _campaignRepository.SaveAsync(campaign);
 
             return StatusCode(StatusCodes.Status201Created);

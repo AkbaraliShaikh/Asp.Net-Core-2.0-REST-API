@@ -7,12 +7,20 @@ namespace Rapsody.Api.Services
 {
     public class FileService : IFileService
     {
+        public void DeleteFile(string path)
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+
         public async Task<string> SaveFileAsync(IFormFile file)
         {
             if (file == null || file.Length == 0)
                 return null;
 
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", DateTime.Now.ToString("ddmmyyhhmmss") + "_" + file.FileName);
 
             if (File.Exists(path))
             {

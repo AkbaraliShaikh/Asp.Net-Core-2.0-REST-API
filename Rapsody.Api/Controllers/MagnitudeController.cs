@@ -48,7 +48,6 @@ namespace Rapsody.Api.Controllers
         }
 
         [HttpPost]
-        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<IActionResult> Post([FromBody]Magnitude magnitude)
         {
             if (magnitude == null)
@@ -59,6 +58,7 @@ namespace Rapsody.Api.Controllers
         }
 
         [HttpPost]
+        [ApiExplorerSettings(IgnoreApi = true)]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Post(IFormFile file)
         {
@@ -67,8 +67,18 @@ namespace Rapsody.Api.Controllers
             if (path == null)
                 return BadRequest();
 
-            var records = _csvService.Get<Magnitude>(System.IO.File.OpenText(path));
-            await _repository.SaveAsync(records);
+            IList<Magnitude> records = null;
+            using (TextReader fileReader = System.IO.File.OpenText(path))
+            {
+                records = _csvService.Get<Magnitude>(fileReader);
+            }
+
+            if (records != null)
+            {
+                await _repository.TruncateAsync(nameof(Magnitude));
+                await _repository.SaveAsync(records);
+            }
+            _fileService.DeleteFile(path);
 
             return StatusCode(StatusCodes.Status201Created);
         }

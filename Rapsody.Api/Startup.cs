@@ -46,7 +46,6 @@ namespace Rapsody.Api
             services.AddDbContext<RapsodyDbContext>(options =>
             {
                 options.UseNpgsql(sqlConnectionString);
-                options.EnableSensitiveDataLogging();
             });
 
             services.AddScoped<IFileService, FileService>();

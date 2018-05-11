@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Rapsody.Api.Services
 {
-    public interface IMagnitudeRepository : IRepository<Magnitude>
+    public interface IMagnitudeRepository : IRepository<Magnitude>, IDatabaseOperation
     {
         Task<Magnitude> GetAsync(int id);
     }

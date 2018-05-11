@@ -7,7 +7,7 @@ namespace Rapsody.Api.Services
 {
     public class CsvService : ICsvService
     {
-        public IList<T> Get<T>(StreamReader stream) where T : class
+        public IList<T> Get<T>(TextReader stream) where T : class
         {
             var csv = new CsvReader(stream);
             csv.Configuration.HasHeaderRecord = true;

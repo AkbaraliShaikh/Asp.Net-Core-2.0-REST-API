@@ -6,5 +6,6 @@ namespace Rapsody.Api.Services
     public interface IFileService
     {
         Task<string> SaveFileAsync(IFormFile file);
+        void DeleteFile(string path);
     }
 }
