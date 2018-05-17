@@ -3,34 +3,31 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using CsvHelper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Rapsody.Api.DB;
 using Rapsody.Api.Models;
 using Rapsody.Api.Services;
 
 namespace Rapsody.Api.Controllers
 {
     [Route("api/v1/group/[controller]")]
-    public class MagnitudeController : Controller
+    public class BSOBSController : Controller
     {
         private readonly ICsvService _csvService;
         private readonly IFileService _fileService;
-        private readonly IMagnitudeRepository _repository;
+        private readonly IBSOBSRepository _bSOBSRepository;
 
-        public MagnitudeController(ICsvService csvService, IFileService fileService,
-            IMagnitudeRepository repository)
+        public BSOBSController(ICsvService csvService, IFileService fileService, IBSOBSRepository bSOBSRepository)
         {
             _csvService = csvService;
             _fileService = fileService;
-            _repository = repository;
+            _bSOBSRepository = bSOBSRepository;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var records = await _repository.GetAsync();
+            var records = await _bSOBSRepository.GetAsync();
             if (records == null)
                 return NoContent();
 
@@ -40,21 +37,11 @@ namespace Rapsody.Api.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> Get(int id)
         {
-            var record = await _repository.GetAsync(id);
-            if (record == null)
+            var record = await _bSOBSRepository.Find(x => x.Id == id);
+            if (!record.Any())
                 return NotFound();
 
-            return Ok(record);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Post([FromBody]Magnitude magnitude)
-        {
-            if (magnitude == null)
-                return BadRequest();
-
-            await _repository.CreateAsync(magnitude);
-            return StatusCode(StatusCodes.Status201Created);
+            return Ok(record.First());
         }
 
         [HttpPost]
@@ -67,44 +54,55 @@ namespace Rapsody.Api.Controllers
             if (path == null)
                 return BadRequest();
 
-            IList<Magnitude> records = null;
+            IList<BSOBS> records = null;
             using (TextReader fileReader = System.IO.File.OpenText(path))
             {
-                records = _csvService.Get<Magnitude>(fileReader);
+                records = _csvService.Get<BSOBS>(fileReader);
             }
 
             if (records != null)
             {
-                await _repository.TruncateAsync(nameof(Magnitude));
-                await _repository.CreateAsync(records);
+                await _bSOBSRepository.TruncateAsync(nameof(BSOBS));
+                await _bSOBSRepository.CreateAsync(records);
             }
             _fileService.DeleteFile(path);
 
             return StatusCode(StatusCodes.Status201Created);
         }
 
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> Put(int id, [FromBody]Magnitude magnitude)
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody]BSOBS bSOBS)
         {
-            if (magnitude == null)
+            if (bSOBS == null)
                 return BadRequest();
 
-            var record = await _repository.GetAsync(id);
-            if (record == null)
+            await _bSOBSRepository.CreateAsync(bSOBS);
+
+            return StatusCode(StatusCodes.Status201Created);
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Put(int id, [FromBody]BSOBS bSOBS)
+        {
+            if (bSOBS == null)
+                return BadRequest();
+
+            var record = await _bSOBSRepository.Find(x => x.Id == id);
+            if (!record.Any())
                 return NotFound();
 
-            magnitude.Id = record.Id;
-            await _repository.UpdateAsync(magnitude);
+            bSOBS.Id = id;
+            await _bSOBSRepository.UpdateAsync(bSOBS);
             return Ok();
         }
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var record = await _repository.GetAsync(id);
+            var record = await _bSOBSRepository.Find(x => x.Id == id);
 
-            if (record != null)
-                await _repository.DeleteAsync(record);
+            if (record.Any())
+                await _bSOBSRepository.DeleteAsync(record.First());
 
             return NoContent();
         }

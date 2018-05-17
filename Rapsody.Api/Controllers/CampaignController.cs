@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Rapsody.Api.Models;
@@ -8,6 +9,7 @@ using Rapsody.Api.Services;
 namespace Rapsody.Api.Controllers
 {
     [Route("api/v1/[controller]")]
+    [Authorize]
     public class CampaignController : Controller
     {
         private readonly ICampaignRepository _campaignRepository;
@@ -44,7 +46,7 @@ namespace Rapsody.Api.Controllers
                 return BadRequest();
 
             campaign.LastModifiedDate = DateTime.Now;
-            await _campaignRepository.SaveAsync(campaign);
+            await _campaignRepository.CreateAsync(campaign);
 
             return StatusCode(StatusCodes.Status201Created);
         }

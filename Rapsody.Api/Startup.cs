@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -10,9 +12,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Rapsody.Api.DB;
 using Rapsody.Api.Services;
 using Swashbuckle.AspNetCore.Swagger;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Rapsody.Api
 {
@@ -27,6 +31,39 @@ namespace Rapsody.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters =
+                         new TokenValidationParameters
+                         {
+                             ValidateIssuer = true,
+                             ValidateAudience = true,
+                             ValidateLifetime = true,
+                             ValidateIssuerSigningKey = true,
+
+                             ValidIssuer = "Rapsody.Security.Bearer",
+                             ValidAudience = "Rapsody.Security.Bearer",
+                             IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("rapsody-secret-key"))
+                         };
+
+                    #region TokenValidateEvents
+                    //options.Events = new JwtBearerEvents
+                    //{
+                    //    OnAuthenticationFailed = context =>
+                    //    {
+                    //        Console.WriteLine("OnAuthenticationFailed: " + context.Exception.Message);
+                    //        return Task.CompletedTask;
+                    //    },
+                    //    OnTokenValidated = context =>
+                    //    {
+                    //        Console.WriteLine("OnTokenValidated: " + context.SecurityToken);
+                    //        return Task.CompletedTask;
+                    //    }
+                    //};
+                    #endregion
+                });
+
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll", policy => policy
@@ -49,6 +86,8 @@ namespace Rapsody.Api
             });
 
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IBSOBSRepository, BSOBSRepository>();
+            services.AddScoped<ICurrencyCodeRepository, CurrencyCodeRepository>();
             services.AddScoped<IMagnitudeRepository, MagnitudeRepository>();
             services.AddScoped<ICampaignRepository, CampaignRepository>();
             services.AddScoped<ICsvService, CsvService>();
@@ -60,18 +99,28 @@ namespace Rapsody.Api
                 {
                     Version = "v1",
                     Title = "Rapsody Core",
-                    Contact = new Swashbuckle.AspNetCore.Swagger.Contact()
+                    Contact = new Contact()
                     {
                         Name = "Akbar Shaikh",
                         Email = "akabarali.shaikh@socgen.com",
                         Url = "http://societegenerale.com"
                     }
                 });
+
+                swagger.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    In = "header",
+                    Type = "apiKey"
+                });
             });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseAuthentication();
+
             app.UseCors("AllowAll");
 
             if (env.IsDevelopment())

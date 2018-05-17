@@ -1,14 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace Rapsody.Api.Services
 {
-    public interface IRepository<T> where T : class
+    public interface IRepository<TEntity> where TEntity : class
     {
-        Task<IList<T>> GetAsync();
-        Task SaveAsync(T entity);
-        Task UpdateAsync(T entity);
-        Task SaveAsync(IList<T> entity);
-        Task DeleteAsync(T entity);
+        Task<IEnumerable<TEntity>> GetAsync();
+        Task<IEnumerable<TEntity>> Find(Expression<Func<TEntity, bool>> filter);
+        Task CreateAsync(TEntity entity);
+        Task CreateAsync(IList<TEntity> entity);
+        Task UpdateAsync(TEntity entity);
+        Task DeleteAsync(TEntity entity);
     }
 }

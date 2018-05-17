@@ -13,6 +13,7 @@ namespace Rapsody.Api.Services
             csv.Configuration.HasHeaderRecord = true;
             csv.Configuration.HeaderValidated = null;
             csv.Configuration.MissingFieldFound = null;
+            csv.Configuration.Delimiter = ";";
             var records = csv.GetRecords<T>().ToList();
             return records;
         }
