@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CsvHelper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Rapsody.Api.DB;
@@ -13,6 +14,7 @@ using Rapsody.Api.Services;
 namespace Rapsody.Api.Controllers
 {
     [Route("api/v1/group/[controller]")]
+    [Authorize]
     public class MagnitudeController : Controller
     {
         private readonly ICsvService _csvService;

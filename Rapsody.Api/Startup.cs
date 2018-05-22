@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,13 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Rapsody.Api.DB;
 using Rapsody.Api.Services;
 using Swashbuckle.AspNetCore.Swagger;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Rapsody.Api
 {
@@ -109,11 +104,13 @@ namespace Rapsody.Api
 
                 swagger.AddSecurityDefinition("Bearer", new ApiKeyScheme
                 {
+                    In = "header",
                     Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
                     Name = "Authorization",
-                    In = "header",
                     Type = "apiKey"
                 });
+
+                swagger.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>> { { "Bearer", Enumerable.Empty<string>() } });
             });
         }
 
@@ -133,7 +130,7 @@ namespace Rapsody.Api
             app.UseSwagger();
             app.UseSwaggerUI(swagger =>
             {
-                swagger.SwaggerEndpoint("/swagger/v1/swagger.json", "My App");
+                swagger.SwaggerEndpoint("/swagger/v1/swagger.json", "Rapsody API");
             });
         }
     }

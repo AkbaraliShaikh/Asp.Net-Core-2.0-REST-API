@@ -14,6 +14,7 @@ namespace Rapsody.Api
             var config = new ConfigurationBuilder()
                         .SetBasePath(Directory.GetCurrentDirectory())
                         .AddJsonFile("hosting.json", optional: true)
+                        .AddJsonFile("appsettings.json", optional: true)
                         .AddCommandLine(args)
                         .Build();
 
